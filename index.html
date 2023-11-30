@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Submission Form</title>
+  <style>
+    body {
+      background-color: #f5f5dc; /* Cream color background */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 72px; /* Triple the font size */
+      margin: 0;
+      color: #333; /* Dark text color */
+    }
+
+    header img {
+      width: 200px; /* Adjust the width as needed */
+      height: auto; /* Maintain the aspect ratio */
+    }
+
+    h2 {
+      font-size: 24px; /* Adjust the font size as needed */
+      color: #333; /* Dark text color */
+      margin: 20px 0;
+    }
+
+    form {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TheoDoodle</h1>
+    <!-- Use the correct relative path for the image -->
+    <img src="IMG_5524.jpg" alt="TheoDoodle Logo">
+  </header>
+
+  <h2>Sign-Up For Our Newsletter</h2>
+  <form id="signupForm">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    <button type="button" onclick="submitForm()">Submit</button>
+  </form>
+
+  <script>
+    function submitForm() {
+      const email = document.getElementById('email').value;
+
+      if (!email) {
+        alert('Email is required');
+        return;
+      }
+
+      fetch('/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        alert('Sign-up successful!');
+      })
+      .catch(error => {
+        console.error(error);
+        alert('Sign-up failed. Please try again.');
+      });
+    }
+  </script>
+</body>
+</html>
+
+
+
+
