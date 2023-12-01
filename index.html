@@ -40,12 +40,6 @@
     form {
       text-align: center;
     }
-
-    #messages, #errorMessages {
-      margin-top: 20px;
-      font-size: 18px;
-      color: green;
-    }
   </style>
 </head>
 <body>
@@ -62,15 +56,9 @@
     <button type="button" onclick="submitForm()">Submit</button>
   </form>
 
-  <div id="messages"></div>
-  <div id="errorMessages"></div>
-
   <script>
-    // your script content here
     function submitForm() {
       const email = document.getElementById('email').value;
-      const messages = document.getElementById('messages');
-      const errorMessages = document.getElementById('errorMessages');
 
       if (!email) {
         alert('Email is required');
@@ -87,17 +75,11 @@
       .then(response => response.json())
       .then(data => {
         console.log(data);
-        messages.innerText = data.message;
-        messages.style.display = 'block';
-        // Hide error messages when there's a success message
-        errorMessages.style.display = 'none';
+        alert('Sign-up successful!');
       })
       .catch(error => {
         console.error(error);
-        errorMessages.innerText = 'Sign-up failed. Please try again.';
-        errorMessages.style.display = 'block';
-        // Hide success messages when there's an error message
-        messages.style.display = 'none';
+        alert('Sign-up failed. Please try again.');
       });
     }
   </script>
