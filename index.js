@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
-const path = require('path');
+const { CosmosClient } = require('@azure/cosmos');
+const path = require('path'); // Add this line to use the 'path' module
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,37 +9,51 @@ const port = process.env.PORT || 3000;
 // Use body-parser middleware to parse JSON
 app.use(bodyParser.json());
 
-// Serve static files from the current directory
-app.use(express.static(__dirname));
+// Replace these values with your Cosmos DB connection details
+const cosmosEndpoint = 'https://doodledatabase.documents.azure.com:443/';
+const cosmosKey = '8nWPvD9Ry8DeUPk1JCfxvm6AZ4Q4fWH6Hcw5yITVC3YFn6AYXFF00xIXTwde9sOzNvJHT65YaAE5ACDbXt8cCg==';
+const databaseId = 'TheoDoodleDatabase';
+const containerId = 'Container1';
+
+// Initialize Cosmos DB client
+const cosmosClient = new CosmosClient({ endpoint: cosmosEndpoint, key: cosmosKey });
+const database = cosmosClient.database(databaseId);
+const container = database.container(containerId);
+
+// Serve HTML file and static assets
+app.use(express.static(__dirname)); // Serve static files from the same directory as index.js
 
 // Handle form submission
-app.post('/submit', (req, res) => {
+app.post('/submit', async (req, res) => {
   const email = req.body.email;
 
   if (!email) {
     return res.status(400).json({ error: 'Email is required' });
   }
 
-  // Handle the email as needed, for example, store it in a database
+  try {
+    // Create a new item in the container
+    const newItem = {
+      email: email,
+      // Add other properties as needed
+    };
 
-  res.json({ message: 'Sign-up successful!' });
+    const { resource: createdItem } = await container.items.create(newItem);
+
+    res.json({ message: 'Sign-up successful!', createdItem });
+  } catch (error) {
+    console.error('Error creating item in Cosmos DB:', error);
+    res.status(500).json({ error: 'Internal Server Error. Please try again later.' });
+  }
 });
 
-// Handle requests to the root path
+// Serve HTML file
 app.get('/', (req, res) => {
-  // Read the contents of index.html and send it as the response
-  const indexPath = path.join(__dirname, 'index.html');
-  fs.readFile(indexPath, 'utf8', (err, data) => {
-    if (err) {
-      console.error(`Error reading index.html: ${err.message}`);
-      res.status(500).send('Internal Server Error');
-    } else {
-      res.send(data);
-    }
-  });
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+

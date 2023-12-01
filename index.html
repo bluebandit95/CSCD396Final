@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Email Submission Form</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" /> <!-- Updated: Favicon link -->
   <style>
     body {
       background-color: #f5f5dc; /* Cream color background */
@@ -45,42 +46,53 @@
 <body>
   <header>
     <h1>TheoDoodle</h1>
-    <!-- Use the correct relative path for the image -->
-    <img src="IMG_5524.jpg" alt="TheoDoodle Logo">
+    <!-- Updated: Use the correct relative path for the image -->
+    <img src="/IMG_5524.jpg" alt="TheoDoodle Logo">
   </header>
 
   <h2>Sign-Up For Our Newsletter</h2>
-  <form id="signupForm">
+  <form id="signupForm" onsubmit="submitForm(event)">
     <label for="email">Email:</label>
     <input type="email" id="email" name="email" required>
-    <button type="button" onclick="submitForm()">Submit</button>
+    <button type="submit">Submit</button>
   </form>
-
   <script>
-    function submitForm() {
-      const email = document.getElementById('email').value;
+    function submitForm(event) {
+      event.preventDefault();
+
+      const emailInput = document.getElementById('email');
+      const email = emailInput.value;
 
       if (!email) {
         alert('Email is required');
         return;
       }
 
+      // Basic email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert('Invalid email format');
+        return;
+      }
+
       fetch('/submit', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
       })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-        alert('Sign-up successful!');
-      })
-      .catch(error => {
-        console.error(error);
-        alert('Sign-up failed. Please try again.');
-      });
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          alert('Sign-up successful!');
+          // Clear the email input after successful submission
+          emailInput.value = '';
+        })
+        .catch(error => {
+          console.error(error);
+          alert('Sign-up failed. Please try again.');
+        });
     }
   </script>
 </body>
