@@ -25,7 +25,7 @@ async function startServer() {
   }
 
   // Fetch Cosmos DB secrets from Key Vault
-  const cosmosSecret = await getKeyVaultSecret('secretKey');
+  const cosmosSecret = await getKeyVaultSecret('cosmosKey');
   const cosmosClient = new CosmosClient({ endpoint: cosmosEndpoint, key: cosmosSecret.value });
   const database = cosmosClient.database(databaseId);
   const container = database.container(containerId);
