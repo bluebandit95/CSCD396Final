@@ -1,7 +1,10 @@
+const appInsights = require('applicationinsights');
+appInsights.setup('08858e7c-2582-4d16-8c7b-8797c3515042').start();
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const { CosmosClient } = require('@azure/cosmos');
-const path = require('path'); // Add this line to use the 'path' module
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -56,4 +59,5 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
 

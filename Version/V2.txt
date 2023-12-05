@@ -1,0 +1,163 @@
+Working code database
+
+javascript:
+const express = require('express');
+const bodyParser = require('body-parser');
+const { CosmosClient } = require('@azure/cosmos');
+const path = require('path'); // Add this line to use the 'path' module
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+// Use body-parser middleware to parse JSON
+app.use(bodyParser.json());
+
+// Replace these values with your Cosmos DB connection details
+const cosmosEndpoint = 'https://doodledatabase.documents.azure.com:443/';
+const cosmosKey = '8nWPvD9Ry8DeUPk1JCfxvm6AZ4Q4fWH6Hcw5yITVC3YFn6AYXFF00xIXTwde9sOzNvJHT65YaAE5ACDbXt8cCg==';
+const databaseId = 'TheoDoodleDatabase';
+const containerId = 'Container1';
+
+// Initialize Cosmos DB client
+const cosmosClient = new CosmosClient({ endpoint: cosmosEndpoint, key: cosmosKey });
+const database = cosmosClient.database(databaseId);
+const container = database.container(containerId);
+
+// Serve HTML file and static assets
+app.use(express.static(__dirname)); // Serve static files from the same directory as index.js
+
+// Handle form submission
+app.post('/submit', async (req, res) => {
+  const email = req.body.email;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  try {
+    // Create a new item in the container
+    const newItem = {
+      email: email,
+      // Add other properties as needed
+    };
+
+    const { resource: createdItem } = await container.items.create(newItem);
+
+    res.json({ message: 'Sign-up successful!', createdItem });
+  } catch (error) {
+    console.error('Error creating item in Cosmos DB:', error);
+    res.status(500).json({ error: 'Internal Server Error. Please try again later.' });
+  }
+});
+
+// Serve HTML file
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
+
+Html:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Submission Form</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" /> <!-- Updated: Favicon link -->
+  <style>
+    body {
+      background-color: #f5f5dc; /* Cream color background */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 72px; /* Triple the font size */
+      margin: 0;
+      color: #333; /* Dark text color */
+    }
+
+    header img {
+      width: 200px; /* Adjust the width as needed */
+      height: auto; /* Maintain the aspect ratio */
+    }
+
+    h2 {
+      font-size: 24px; /* Adjust the font size as needed */
+      color: #333; /* Dark text color */
+      margin: 20px 0;
+    }
+
+    form {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TheoDoodle</h1>
+    <!-- Updated: Use the correct relative path for the image -->
+    <img src="/IMG_5524.jpg" alt="TheoDoodle Logo">
+  </header>
+
+  <h2>Sign-Up For Our Newsletter</h2>
+  <form id="signupForm" onsubmit="submitForm(event)">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    <button type="submit">Submit</button>
+  </form>
+  <script>
+    function submitForm(event) {
+      event.preventDefault();
+
+      const emailInput = document.getElementById('email');
+      const email = emailInput.value;
+
+      if (!email) {
+        alert('Email is required');
+        return;
+      }
+
+      // Basic email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert('Invalid email format');
+        return;
+      }
+
+      fetch('/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          alert('Sign-up successful!');
+          // Clear the email input after successful submission
+          emailInput.value = '';
+        })
+        .catch(error => {
+          console.error(error);
+          alert('Sign-up failed. Please try again.');
+        });
+    }
+  </script>
+</body>
+</html>
