@@ -1,0 +1,77 @@
+//With cosmos db key vault:
+
+const appInsights = require('applicationinsights');
+appInsights.setup('08858e7c-2582-4d16-8c7b-8797c3515042').start();
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const { CosmosClient } = require('@azure/cosmos');
+const { DefaultAzureCredential } = require('@azure/identity');
+const { SecretClient } = require('@azure/keyvault-secrets');
+const path = require('path');
+
+async function startServer() {
+  const app = express();
+  const port = process.env.PORT || 3000;
+
+  // Use body-parser middleware to parse JSON
+  app.use(bodyParser.json());
+
+  // Initialize Cosmos DB client
+  const databaseId = 'TheoDoodleDatabase';
+  const containerId = 'Container1';
+  const cosmosEndpoint = 'https://doodledatabase.documents.azure.com:443/';
+
+  async function getKeyVaultSecret(secretName) {
+    const keyVaultUrl = 'https://doodlevault.vault.azure.net/';
+    const credential = new DefaultAzureCredential();
+    const secretClient = new SecretClient(keyVaultUrl, credential);
+    return secretClient.getSecret(secretName);
+  }
+
+  // Fetch Cosmos DB secrets from Key Vault
+  const cosmosSecret = await getKeyVaultSecret('secretKey');
+  const cosmosClient = new CosmosClient({ endpoint: cosmosEndpoint, key: cosmosSecret.value });
+  const database = cosmosClient.database(databaseId);
+  const container = database.container(containerId);
+
+  // Serve HTML file and static assets
+  app.use(express.static(__dirname));
+
+  // Handle form submission
+  app.post('/submit', async (req, res) => {
+    const email = req.body.email;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    try {
+      // Create a new item in the container
+      const newItem = {
+        email: email,
+        // Add other properties as needed
+      };
+
+      const { resource: createdItem } = await container.items.create(newItem);
+
+      res.json({ message: 'Sign-up successful!', createdItem });
+    } catch (error) {
+      console.error('Error creating item in Cosmos DB:', error);
+      res.status(500).json({ error: 'Internal Server Error. Please try again later.' });
+    }
+  });
+
+  // Serve HTML file
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  });
+
+  // Start the server
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
+
+// Call the async function
+startServer();
