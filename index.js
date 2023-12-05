@@ -1,6 +1,3 @@
-const appInsights = require('applicationinsights');
-appInsights.setup('08858e7c-2582-4d16-8c7b-8797c3515042').start();
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const { CosmosClient } = require('@azure/cosmos');
@@ -33,7 +30,20 @@ async function startServer() {
   const database = cosmosClient.database(databaseId);
   const container = database.container(containerId);
 
-  // Serve HTML file and static assets
+
+  // Fetch Application Insights instrumentation key from Key Vault
+  const appInsightsSecret = await getKeyVaultSecret('insightKey');
+  const appInsightsKey = appInsightsSecret.value;
+
+  // Set up Application Insights with the retrieved key
+  const appInsights = require('applicationinsights');
+  appInsights.setup(appInsightsKey).start();
+
+  /*const appInsights = require('applicationinsights');
+  appInsights.setup('08858e7c-2582-4d16-8c7b-8797c3515042').start();
+  */
+
+// Serve HTML file and static assets
   app.use(express.static(__dirname));
 
   // Handle form submission
