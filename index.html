@@ -46,7 +46,6 @@
 <body>
   <header>
     <h1>TheoDoodle</h1>
-    <!-- Updated: Use the correct relative path for the image -->
     <img src="/IMG_5524.jpg" alt="TheoDoodle Logo">
   </header>
 
@@ -59,23 +58,47 @@
   <script>
     function submitForm(event) {
       event.preventDefault();
-
+  
       const emailInput = document.getElementById('email');
       const email = emailInput.value;
-
+  
       if (!email) {
         alert('Email is required');
         return;
       }
-
+  
       // Basic email format validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         alert('Invalid email format');
         return;
       }
+  
+       // Request to Cosmos DB frontend
+       fetch('/submit-to-cosmos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email }), // Ensure email is defined
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Cosmos DB Response:', data);
+          
+          // Alert or handle Cosmos DB response as needed
+          if (data && data.message === 'Sign-up successful for Cosmos DB!') {
+            // Alert only when Cosmos DB operation is successful
+            alert('Sign-up successful!');
+            
+          } else {
+            // Handle Cosmos DB error if needed
+            alert('Cosmos DB failed. Please try again.');
+          }
+        })
 
-      fetch('/submit', {
+      // Logic app
+      fetch('https://prod-01.eastus.logic.azure.com:443/workflows/dd7e8c80bb664f2d8cb79171dc3602ee/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=GVpJPGDCpEpzqHxvxTNgJWzeCLCzvAFHVc7T2y2IYlo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,16 +107,13 @@
       })
         .then(response => response.json())
         .then(data => {
-          console.log(data);
-          alert('Sign-up successful!');
+          console.log('Logic App Response:', data);
+  
           // Clear the email input after successful submission
           emailInput.value = '';
-        })
-        .catch(error => {
-          console.error(error);
-          alert('Sign-up failed. Please try again.');
         });
     }
   </script>
 </body>
 </html>
+

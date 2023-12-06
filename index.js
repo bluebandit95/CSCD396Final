@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const { CosmosClient } = require('@azure/cosmos');
 const { DefaultAzureCredential } = require('@azure/identity');
 const { SecretClient } = require('@azure/keyvault-secrets');
+//const fetch = require('node-fetch');
 const path = require('path');
 
 async function startServer() {
@@ -47,7 +48,7 @@ async function startServer() {
   app.use(express.static(__dirname));
 
   // Handle form submission
-  app.post('/submit', async (req, res) => {
+  app.post('/submit-to-cosmos', async (req, res) => {
     const email = req.body.email;
 
     if (!email) {
@@ -58,15 +59,30 @@ async function startServer() {
       // Create a new item in the container
       const newItem = {
         email: email,
-        // Add other properties as needed
       };
 
       const { resource: createdItem } = await container.items.create(newItem);
+     
+      res.json({ message: 'Sign-up successful for Cosmos DB!', createdItem: newItem });
+  
 
-      res.json({ message: 'Sign-up successful!', createdItem });
+      // Logic App email
+      const logicAppEndpoint = 'https://prod-01.eastus.logic.azure.com:443/workflows/dd7e8c80bb664f2d8cb79171dc3602ee/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=GVpJPGDCpEpzqHxvxTNgJWzeCLCzvAFHVc7T2y2IYlo';
+
+      const logicAppRequestBody = {
+        email: email,
+      };
+
+      await fetch(logicAppEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(logicAppRequestBody),
+      });
     } catch (error) {
       console.error('Error creating item in Cosmos DB:', error);
-      res.status(500).json({ error: 'Internal Server Error. Please try again later.' });
+      res.status(500).json({ error: 'Internal Server Error. Please try again later for Cosmos DB.' });
     }
   });
 
