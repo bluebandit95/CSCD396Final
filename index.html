@@ -49,13 +49,25 @@
       display: flex;
       justify-content: space-around;
       padding: 10px;
+      flex-wrap: wrap; 
     }
 
     nav a {
       color: #fff;
       text-decoration: none;
       font-weight: bold;
+      margin: 5px;
     }
+    @media only screen and (max-width: 600px) {
+  nav {
+    flex-direction: column; /* Change to a column layout on smaller screens */
+    align-items: center; /* Center items in the column */
+  }
+
+  nav a {
+    margin: 5px 0; /* Adjust spacing for items in the column layout */
+  }
+}
 
     section {
       display: flex;
