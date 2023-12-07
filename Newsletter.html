@@ -13,16 +13,16 @@
     }
 
     header {
-      background-color: #1d1c1c;
+      background-color: #333;
       color: #fff;
-      padding: 30px;
+      padding: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
     header img {
-      width: 75px;
+      width: 100px;
       height: auto;
       flex-grow: 0;
       align-items: left;
@@ -32,9 +32,6 @@
       margin: 0;
       flex-grow: 0;
       text-align: center;
-      font-style: italic;
-      font-family: 'cursive';
-
     }
 
     .login-cart {
@@ -45,7 +42,7 @@
     }
 
     nav {
-      background-color: #1c1b1b; 
+      background-color: #333; 
       display: flex;
       justify-content: space-around;
       padding: 10px;
@@ -58,56 +55,23 @@
     }
 
     section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       padding: 20px;
-      border: 2px solid #1d1c1c; /* Border color */
-      border-radius: 10px;
-      margin: 20px;
     }
 
     h2 {
-    color: #000000;
-    font-size: 15px; /* Adjust the font size as needed */
-    font-weight: bold; /* Add if you want to make it bold */
-    margin-right: 15px;
-    text-align: right;
-  }
+      color: #333;
+    }
 
 
     .subscription-images {
       display: flex;
       justify-content: space-around;
       margin-top: 20px;
-      flex-wrap: wrap;
     }
 
     .subscription-images img {
-      width: 350px;
-      height: 500px;
-    }
-
-    .subscription-title {
-      font-weight: bold;
-      font-size: 18px;
-      margin-top: 5px;
-      text-align: center;
-    }
-
-    #signupForm button {
-      background-color: rgb(16, 19, 104);
-      color: #fff;
-      padding: 5px 15px;
-      font-size: 14px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    #signupForm button:hover {
-      background-color: rgb(16, 19, 104);
+      width: 100px;
+      height: auto;
     }
 
     .coming-soon {
@@ -115,40 +79,6 @@
       font-style: italic;
     }
 
-    .newsletter-text {
-      font-size: 30px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    .signup-box {
-      border: 2px solid #1c1b1b; 
-      border-radius: 10px; /* Border radius for rounded corners */
-      padding: 20px; /* Padding inside the box */
-      margin-bottom: 20px; /* Add some space below the box */
-    }
-
-    .subscription-title {
-      font-weight: bold;
-      font-size: 18px;
-      margin-top: 10px;
-    }
-
-    .success-message {
-      display: none;
-      position: fixed;
-      bottom: 21%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: rgb(16, 19, 104);
-      color: #fff;
-      padding: 20px;
-      border-radius: 5px;
-      text-align: center;
-      cursor: pointer;
-      max-width: 100px; /* Set a maximum width */
-      font-size: 12px; /* Adjust the font size to make it smaller */
-}
 
   </style>
 </head>
@@ -173,36 +103,23 @@
   </nav>
 
   <section>
-    <h2></h2>
+    <h2>Subscriptions</h2>
 
-    <div class="signup-box">
-      <p class="newsletter-text">Sign up for our Newsletter!</p>
-      <form id="signupForm" onsubmit="submitForm(event)">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <button type="submit">Sign Up</button>
-      </form>
-      <p class="coming-soon">Coming Soon: Doggy Bandana Subscription Boxes</p>
-    </div>
-  
     <div class="subscription-images">
-      <div>
-        <h3 class="subscription-title">Fall Dog of the Season</h3>
-        <img src="img/IMG_6162.jpg" alt="Left Subscription Image">
-      </div>
-      <div>
-        <h3 class="subscription-title">Winter Dog of the Season</h3>
-        <img src="img/winter.jpg" alt="Center Subscription Image">
-      </div>
-      <div>
-        <h3 class="subscription-title">Summer Dog of the Season</h3>
-        <img src="img/IMG_5967.jpg" alt="Right Subscription Image">
-      </div>
+      <img src="IMG_6162.jpg" alt="Left Subscription Image">
+      <img src="FullSizeRender.jpg" alt="Center Subscription Image">
+      <img src="IMG_5967.jpg" alt="Right Subscription Image">
     </div>
 
-    <div id="successMessage" class="success-message" onclick="hideSuccessMessage()">
-      <p>Sign-up successful! </p>
-    </div>
+    <p>Sign up for our Newsletter!</p>
+    <form id="signupForm" onsubmit="submitForm(event)">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+      <button type="submit">Sign Up</button>
+    </form>
+
+    <p class="coming-soon">Coming Soon: Subscription Boxes</p>
+  </section>
 
   <script>
     function submitForm(event) {
@@ -238,7 +155,7 @@
           // Alert or handle Cosmos DB response as needed
           if (data && data.message === 'Sign-up successful for Cosmos DB!') {
             // Alert only when Cosmos DB operation is successful
-            showSuccessMessage();
+            alert('Sign-up successful!');
             
           } else {
             // Handle Cosmos DB error if needed
@@ -262,25 +179,6 @@
           emailInput.value = '';
         });
     }
-    function showSuccessMessage() {
-  const successMessage = document.getElementById('successMessage');
-  const signupForm = document.getElementById('signupForm');
-
-  // Display success message
-  successMessage.style.display = 'block';
-
-  // Reset the form after a successful submission
-  signupForm.reset();
-
-  // Auto hide the success message after 3 seconds (3000 milliseconds)
-  setTimeout(hideSuccessMessage, 2000);
-}
-
-  function hideSuccessMessage() {
-    const successMessage = document.getElementById('successMessage');
-    successMessage.style.display = 'none';
-  }
 </script>
 </body>
 </html>
-
